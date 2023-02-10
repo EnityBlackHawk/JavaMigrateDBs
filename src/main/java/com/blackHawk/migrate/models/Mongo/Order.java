@@ -19,10 +19,10 @@ public class Order {
 
     private float total;
 
-    @Reference
+    @DocumentReference
     private Customer customer;
 
-   @DBRef
+   @DocumentReference
     private List<Orderline> orderlines;
 
     public Order() {

@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 @EnableMongoRepositories(basePackageClasses = {ProductService.class, MgProductRespository.class})
 public class MigrateApplication {
 
-	public static final boolean MIGRATE = true;
+	public static final boolean MIGRATE = false;
 
 	public static void main(String[] args) throws ParseException {
 
@@ -94,15 +94,7 @@ public class MigrateApplication {
 		}
                     if(!MIGRATE)
                     {
-                         Random rand = new Random();
-                        
-                        for(int i = 0; i < 10; i++)
-                        {
-                            int randonIndexProd = rand.nextInt(lp.size() - 1);
-                            int randonIndexOrd = rand.nextInt(lo.size() - 1);
-                            Orderline ol = new Orderline(0, new Date(), 1.0f, lp.get(randonIndexProd).getPrice(), lo.get(randonIndexOrd), lp.get(randonIndexProd)  );
-                            db.SaveMSS(ol);
-                        }
+                         
                     }
                        
                         
