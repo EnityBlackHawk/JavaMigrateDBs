@@ -1,5 +1,8 @@
 package com.blackHawk;
 
+
+import com.blackHawk.migrate.BaseClasses.OrderInterface;
+import com.blackHawk.migrate.BaseClasses.TesteInterface;
 import com.blackHawk.migrate.DBControl;
 import com.blackHawk.migrate.Transfer;
 import com.blackHawk.migrate.models.MSS.Customer;
@@ -8,63 +11,59 @@ import com.blackHawk.migrate.models.MSS.Orderline;
 import com.blackHawk.migrate.models.MSS.Product;
 import com.blackHawk.migrate.repositories.Mongo.MgProductRespository;
 import com.blackHawk.migrate.services.Mongo.ProductService;
+
+import lombok.Getter;
+import org.burningwave.core.classes.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import java.lang.reflect.Modifier;
+import java.util.Locale;
+
+import org.burningwave.core.assembler.ComponentSupplier;
+
+import static org.burningwave.core.assembler.StaticComponentContainer.Constructors;
 
 @SpringBootApplication
 @EnableMongoRepositories(basePackageClasses = {ProductService.class, MgProductRespository.class})
 public class MigrateApplication {
 
 	public static final boolean MIGRATE = false;
+	public static final boolean EMBADED = true;
 
 	public static void main(String[] args) throws ParseException {
 
 		var context = SpringApplication.run(MigrateApplication.class, args);
 
 		DBControl db = context.getBean(DBControl.class);
+
+
+		// Getting data:
                 
-                                        List<Product> lp = db.GetProductMSS();
+        List<Product> lp = db.GetProductMSS();
 		List<Customer> lc = db.GetCustomerMSS();
 		List<Order> lo = db.GetOrderMSS();
 		List<Orderline> lol = db.GetOrderlineMSS();
-
+		// end Getting data;
 
 		if(MIGRATE)
 		{
-                                                             /*
-			List<Product> lp = db.GetProductMSS();
-			List<Customer> lc = db.GetCustomerMSS();
-			List<Order> lo = db.GetOrderMSS();
-			List<Orderline> lol = db.GetOrderlineMSS();
-                                                            */
+
 			List<com.blackHawk.migrate.models.Mongo.Product> lpM  	= new ArrayList<>();
 			List<com.blackHawk.migrate.models.Mongo.Customer> lcM 	= new ArrayList<>();
 			List<com.blackHawk.migrate.models.Mongo.Order> loM 	= new ArrayList<>();
 			List<com.blackHawk.migrate.models.Mongo.Orderline> lolM	= new ArrayList<>();
-                                                         
-                                                           /*
-                                                            try {
-                                                                var field = com.blackHawk.migrate.models.Mongo.Order.class.getField("orderlines");
-                                                            } catch (NoSuchFieldException ex) {
-                                                                Logger.getLogger(MigrateApplication.class.getName()).log(Level.SEVERE, null, ex);
-                                                            }
-                                                            */
-                                                            
-                                                          
+
+
+
+
+
 
 			ModelMapper modelMapper = new ModelMapper();
 
@@ -85,17 +84,72 @@ public class MigrateApplication {
 				loM.add(modelMapper.map(lo.get(i), com.blackHawk.migrate.models.Mongo.Order.class));
 				db.SaveMongo(loM.get(i));
 			}
-                                                        
-//			for(int i = 0; i < lol.size(); i++)
-//			{
-//				lolM.add(modelMapper.map(lol.get(i), com.blackHawk.migrate.models.Mongo.Orderline.class));
-//				db.SaveMongo(lolM.get(i));
-//			}
+
+			if(!EMBADED)
+				for(int i = 0; i < lol.size(); i++)
+				{
+					lolM.add(modelMapper.map(lol.get(i), com.blackHawk.migrate.models.Mongo.Orderline.class));
+					db.SaveMongo(lolM.get(i));
+				}
 		}
-                    if(!MIGRATE)
-                    {
-                         
-                    }
+		else {
+
+			// GETTERS ONLY
+
+			var c = ClassSourceGenerator.create(
+					TypeDeclarationSourceGenerator.create("AutoOrder")
+			).addModifier(
+					Modifier.PUBLIC
+			).addConcretizedType(
+					TesteInterface.class
+			);
+
+			var methods = TesteInterface.class.getMethods();
+			for(var method : methods)
+			{
+				String fieldName = method.getName().toLowerCase(Locale.ROOT).substring(3);
+
+				var field = VariableSourceGenerator.create(TypeDeclarationSourceGenerator.create(method.getReturnType()), fieldName);
+				c.addField(field);
+
+				var f = FunctionSourceGenerator.create(
+						method.getName()
+				).setReturnType(TypeDeclarationSourceGenerator.create(method.getReturnType()))
+						.addModifier(Modifier.PUBLIC);
+
+				if(method.getParameterCount() > 0)
+				{}
+				f.addBodyCode("return " + fieldName + ";");
+
+				c.addMethod(f);
+			}
+
+			UnitSourceGenerator unitSG = UnitSourceGenerator.create("com.blackHawk.AutoGenerated").addClass(
+					c
+			);
+
+			ComponentSupplier componentSupplier = ComponentSupplier.getInstance();
+			ClassFactory classFactory = componentSupplier.getClassFactory();
+
+			ClassFactory.ClassRetriever classRetriever = classFactory.loadOrBuildAndDefine(unitSG);
+			Class<?> generatedClass = classRetriever.get("com.blackHawk.AutoGenerated.AutoOrder");
+			Object generadedObject = Constructors.newInstanceOf(generatedClass);
+
+			var met = generadedObject.getClass().getMethods();
+
+			for(var o : met)
+			{
+				System.out.print(o.getName() + "\n");
+			}
+			System.out.print("FIELDS: \n");
+
+			var fields = generadedObject.getClass().getDeclaredFields();
+			for(var f : fields)
+			{
+				System.out.print(f.getType() + " " + f.getName() + "\n");
+			}
+
+		}
                        
                         
 		
