@@ -1,10 +1,9 @@
 package com.blackHawk;
 
 
-import com.blackHawk.migrate.BaseClasses.OrderInterface;
+import com.blackHawk.migrate.Annotations.AddAnnotation;
 import com.blackHawk.migrate.BaseClasses.TesteInterface;
 import com.blackHawk.migrate.DBControl;
-import com.blackHawk.migrate.Transfer;
 import com.blackHawk.migrate.models.MSS.Customer;
 import com.blackHawk.migrate.models.MSS.Order;
 import com.blackHawk.migrate.models.MSS.Orderline;
@@ -12,7 +11,6 @@ import com.blackHawk.migrate.models.MSS.Product;
 import com.blackHawk.migrate.repositories.Mongo.MgProductRespository;
 import com.blackHawk.migrate.services.Mongo.ProductService;
 
-import lombok.Getter;
 import org.burningwave.core.classes.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
@@ -20,7 +18,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -109,6 +106,14 @@ public class MigrateApplication {
 				if(!createdMethods.contains(fieldName))
 				{
 					var field = VariableSourceGenerator.create(TypeDeclarationSourceGenerator.create(method.getReturnType()), fieldName);
+
+					var ann = method.getAnnotation(AddAnnotation.class);
+					if(ann != null)
+					{
+						for(Class <?> a : ann.value())
+							field.addAnnotation(AnnotationSourceGenerator.create(a));
+					}
+
 					c.addField(field);
 					createdMethods.add(fieldName);
 				}
@@ -160,7 +165,10 @@ public class MigrateApplication {
 			var fields = generadedObject.getClass().getDeclaredFields();
 			for(var f : fields)
 			{
-				System.out.print(f.getType() + " " + f.getName() + "\n");
+				System.out.print(f.getType() + " " + f.getName() + "-> ");
+				for(var a : f.getDeclaredAnnotations())
+					System.out.print(a + ", ");
+				System.out.print("\n");
 			}
 
 			System.out.printf("TESTS: \n");
@@ -170,7 +178,13 @@ public class MigrateApplication {
 
 				System.out.print(generadedObject.getClass().getMethod("getId").invoke(generadedObject));
 
-			} catch (NoSuchMethodException e) {
+				var OAnno = Order.class.getDeclaredField("id").getDeclaredAnnotations();
+				for(var a : OAnno)
+				{
+					System.out.print(a.toString() + "\n");
+				}
+
+			} catch (NoSuchMethodException | NoSuchFieldException e) {
 				throw new RuntimeException(e);
 			} catch (InvocationTargetException e) {
 				throw new RuntimeException(e);
