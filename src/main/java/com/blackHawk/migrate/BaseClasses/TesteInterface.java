@@ -6,9 +6,8 @@ import javax.persistence.Id;
 
 public interface TesteInterface {
 
-    @AddAnnotation(value = {Id.class})
-    public int getId();
-    public String getName();
-    public void setId(int id);
+    @AddAnnotation(Id.class)
+    void setId(int value);
+    void setName(String value);
 
 }

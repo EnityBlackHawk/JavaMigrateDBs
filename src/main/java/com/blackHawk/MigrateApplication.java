@@ -3,6 +3,7 @@ package com.blackHawk;
 
 import com.blackHawk.migrate.Annotations.AddAnnotation;
 import com.blackHawk.migrate.AutoGen;
+import com.blackHawk.migrate.BaseClasses.CustomerInterface;
 import com.blackHawk.migrate.BaseClasses.TesteInterface;
 import com.blackHawk.migrate.DBControl;
 import com.blackHawk.migrate.models.MSS.Customer;
@@ -12,7 +13,6 @@ import com.blackHawk.migrate.models.MSS.Product;
 import com.blackHawk.migrate.repositories.Mongo.MgProductRespository;
 import com.blackHawk.migrate.services.Mongo.ProductService;
 
-import org.burningwave.core.classes.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,13 +22,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-
-import java.lang.reflect.Modifier;
-import java.util.Locale;
-
-import org.burningwave.core.assembler.ComponentSupplier;
-
-import static org.burningwave.core.assembler.StaticComponentContainer.Constructors;
 
 @SpringBootApplication
 @EnableMongoRepositories(basePackageClasses = {ProductService.class, MgProductRespository.class})
@@ -44,16 +37,19 @@ public class MigrateApplication {
 		DBControl db = context.getBean(DBControl.class);
 
 
-		// Getting data:
-                
-        List<Product> lp = db.GetProductMSS();
-		List<Customer> lc = db.GetCustomerMSS();
-		List<Order> lo = db.GetOrderMSS();
-		List<Orderline> lol = db.GetOrderlineMSS();
-		// end Getting data;
+
 
 		if(MIGRATE)
 		{
+
+			// Getting data:
+
+			List<Product> lp = db.GetProductMSS();
+			List<Customer> lc = db.GetCustomerMSS();
+			List<Order> lo = db.GetOrderMSS();
+			List<Orderline> lol = db.GetOrderlineMSS();
+			// end Getting data;
+
 
 			List<com.blackHawk.migrate.models.Mongo.Product> lpM  	= new ArrayList<>();
 			List<com.blackHawk.migrate.models.Mongo.Customer> lcM 	= new ArrayList<>();
@@ -89,7 +85,9 @@ public class MigrateApplication {
 				}
 		}
 		else {
-			var generadedObject = AutoGen.Generate("AutoOrder", "com.blackHawk.migrate.auto", TesteInterface.class);
+
+
+			var generadedObject = AutoGen.Generate("AutoOrder", "com.blackHawk.migrate.auto", CustomerInterface.class);
 			var met = generadedObject.getClass().getDeclaredMethods();
 
 			System.out.print("METHODS: \n");
@@ -120,15 +118,7 @@ public class MigrateApplication {
 
 				System.out.print(generadedObject.getClass().getMethod("getId").invoke(generadedObject));
 
-				var OAnno = Order.class.getDeclaredField("id").getDeclaredAnnotations();
-				for(var a : OAnno)
-				{
-					System.out.print(a.toString() + "\n");
-				}
-
-			} catch (NoSuchMethodException | NoSuchFieldException e) {
-				throw new RuntimeException(e);
-			} catch (InvocationTargetException e) {
+			} catch (InvocationTargetException | NoSuchMethodException e) {
 				throw new RuntimeException(e);
 			} catch (IllegalAccessException e) {
 				throw new RuntimeException(e);
