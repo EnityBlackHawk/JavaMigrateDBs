@@ -18,7 +18,7 @@ public class Order {
     private Date orderdate;
 
     private float total;
-
+    
     @DocumentReference
     private Customer customer;
 
@@ -36,29 +36,36 @@ public class Order {
         this.orderlines = orderlines;
     }
 
+
     public String getId() {
         return id;
     }
+
 
     public void setId(String id) {
         this.id = id;
     }
 
+
     public Date getOrderdate() {
         return orderdate;
     }
+
 
     public void setOrderdate(Date orderdate) {
         this.orderdate = orderdate;
     }
 
+
     public float getTotal() {
         return total;
     }
 
+
     public void setTotal(float total) {
         this.total = total;
     }
+
 
     public Customer getCustomer() {
         return customer;
@@ -68,14 +75,17 @@ public class Order {
 //        this.customer = new Customer(String.format("%d", customer.getId()), customer.getName(), customer.getBirth(), customer.getBudget());
 //    }
 
+
     public void setCustomer(Customer customer)
     {
         this.customer = customer;
     }
 
+
     public List<Orderline> getOrderlines() {
         return orderlines;
     }
+
 
     public void setOrderlines(List<Orderline> orderlines) {
         this.orderlines = orderlines;

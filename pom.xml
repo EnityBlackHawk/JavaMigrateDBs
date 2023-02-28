@@ -48,6 +48,25 @@
 			<artifactId>modelmapper</artifactId>
 			<version>3.0.0</version>
 		</dependency>
+                
+                                        <dependency>
+                                            <groupId>org.burningwave</groupId>
+                                            <artifactId>core</artifactId>
+                                            <version>12.62.5</version>
+                                        </dependency>
+                                        
+                                        <dependency>
+                                            <groupId>com.github.XDean</groupId>
+                                            <artifactId>Java-EX</artifactId>
+                                            <version>0.1.1</version>
+                                        </dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.26</version>
+			<scope>provided</scope>
+		</dependency>
 
 	</dependencies>
 
@@ -56,6 +75,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+                                                                            <argLine>--add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
 			</plugin>
 		</plugins>
 	</build>
