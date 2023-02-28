@@ -1,18 +1,24 @@
 package com.blackHawk.migrate;
 
 import com.blackHawk.migrate.Annotations.AddAnnotation;
-import com.blackHawk.migrate.BaseClasses.TesteInterface;
+import com.blackHawk.migrate.Annotations.ConditionalAnnotation;
+import com.blackHawk.migrate.BaseClasses.AutoClass;
 import org.burningwave.core.assembler.ComponentSupplier;
 import org.burningwave.core.classes.*;
-import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.util.Pair;
 
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Map;
 
 import static org.burningwave.core.assembler.StaticComponentContainer.Constructors;
 
 public class AutoGen {
+    /*
     public static Object GenerateOld(String name, String packageName, Class interfaceRecipe)
     {
         var c = ClassSourceGenerator.create(
@@ -31,7 +37,9 @@ public class AutoGen {
 
             if(!createdMethods.contains(fieldName))
             {
+
                 var field = VariableSourceGenerator.create(TypeDeclarationSourceGenerator.create(method.getReturnType()), fieldName);
+
 
                 var ann = method.getAnnotation(AddAnnotation.class);
                 if(ann != null)
@@ -75,8 +83,8 @@ public class AutoGen {
 
         return Constructors.newInstanceOf(generatedClass);
     }
-
-    public static Object Generate(String name, String packageName, Class interfaceRecipe)
+    */
+    public static Pair<Class<?>, Object> Generate(String name, String packageName, Class interfaceRecipe, Map<String, Boolean> annotationTags)
     {
         var c = ClassSourceGenerator.create(
                 TypeDeclarationSourceGenerator.create(name)
@@ -84,6 +92,11 @@ public class AutoGen {
                 Modifier.PUBLIC
         ).addConcretizedType(
                 interfaceRecipe
+        ).expands(
+                AutoClass.class
+        ).addAnnotation(
+                AnnotationSourceGenerator.create(Document.class)
+                        .addParameter(VariableSourceGenerator.create("collection").setValue("\"Customer\""))
         );
 
         var methods = interfaceRecipe.getMethods();
@@ -93,7 +106,25 @@ public class AutoGen {
             String fieldName = method.getName().substring(3);
 
             if(!createdMethods.contains(fieldName)) {
-                var field = VariableSourceGenerator.create(TypeDeclarationSourceGenerator.create(method.getParameterTypes()[0]), fieldName.toLowerCase(Locale.ROOT))
+
+                Type[] generics = method.getGenericParameterTypes();
+
+                TypeDeclarationSourceGenerator fieldType = TypeDeclarationSourceGenerator.create(method.getParameterTypes()[0]);
+
+
+                try
+                {
+                    ParameterizedType parameterizedType = (ParameterizedType) generics[0];
+                    System.out.print(parameterizedType.getActualTypeArguments()[0]);
+                    fieldType.addGeneric(
+                            GenericSourceGenerator.create(Class.forName(parameterizedType.getActualTypeArguments()[0].getTypeName()))
+                    );
+                }
+                catch (ClassCastException | ClassNotFoundException ignored)
+                {}
+
+
+                var field = VariableSourceGenerator.create(fieldType, fieldName.toLowerCase(Locale.ROOT))
                         .addModifier(Modifier.PRIVATE);
 
                 var ann = method.getAnnotation(AddAnnotation.class);
@@ -102,14 +133,22 @@ public class AutoGen {
                         field.addAnnotation(AnnotationSourceGenerator.create(a));
                 }
 
+                var condAnn = method.getAnnotation(ConditionalAnnotation.class);
+                if(condAnn != null)
+                {
+                    if(annotationTags.get(condAnn.tag()))
+                        field.addAnnotation(AnnotationSourceGenerator.create(condAnn.value()));
+                    else if (!annotationTags.containsKey(condAnn.tag()) && condAnn.def())
+                        field.addAnnotation(AnnotationSourceGenerator.create(condAnn.value()));
+                }
+
+
                 c.addField(field);
                 createdMethods.add(fieldName);
 
                 var getter = FunctionSourceGenerator.create("get" + fieldName)
                         .setReturnType(
-                                TypeDeclarationSourceGenerator.create(
-                                        method.getParameterTypes()[0]
-                                )
+                                fieldType
                         )
                         .addModifier(Modifier.PUBLIC)
                         .addBodyCode("return " + fieldName.toLowerCase() + ";");
@@ -121,9 +160,7 @@ public class AutoGen {
                         .addModifier(Modifier.PUBLIC)
                         .addParameter(
                                 VariableSourceGenerator.create(
-                                        TypeDeclarationSourceGenerator.create(
-                                                method.getParameterTypes()[0]
-                                        ),
+                                        fieldType,
                                         "value"
                                 )
                         )
@@ -147,7 +184,7 @@ public class AutoGen {
         ClassFactory.ClassRetriever classRetriever = classFactory.loadOrBuildAndDefine(unitSG);
         Class<?> generatedClass = classRetriever.get("com.blackHawk.AutoGenerated.AutoOrder");
 
-        return Constructors.newInstanceOf(generatedClass);
+        return Pair.of(generatedClass, Constructors.newInstanceOf(generatedClass));
     }
 
 }

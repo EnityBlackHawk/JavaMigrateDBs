@@ -1,9 +1,10 @@
 package com.blackHawk.migrate.repositories.Mongo;
 
-import com.blackHawk.migrate.models.Mongo.Customer;
+
+import com.blackHawk.migrate.BaseClasses.AutoClass;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface MgCustomerRepository extends MongoRepository<Customer, String> {
+public interface MgAutoRepository extends MongoRepository<AutoClass, String> {
 }

@@ -1,18 +1,12 @@
 package com.blackHawk.migrate;
 
+import com.blackHawk.migrate.BaseClasses.AutoClass;
 import com.blackHawk.migrate.models.MSS.Customer;
 import com.blackHawk.migrate.models.MSS.Order;
 import com.blackHawk.migrate.models.MSS.Orderline;
 import com.blackHawk.migrate.models.Mongo.Product;
-import com.blackHawk.migrate.repositories.MSS.CustomerRepository;
-import com.blackHawk.migrate.repositories.MSS.OrderRepository;
-import com.blackHawk.migrate.repositories.MSS.OrderlinesRepository;
-import com.blackHawk.migrate.repositories.MSS.ProductRepository;
-import com.blackHawk.migrate.repositories.Mongo.MgCustomerRepository;
-import com.blackHawk.migrate.repositories.Mongo.MgOrderRepository;
-import com.blackHawk.migrate.repositories.Mongo.MgOrderlineRepository;
-import com.blackHawk.migrate.repositories.Mongo.MgProductRespository;
-import com.blackHawk.migrate.services.Mongo.ProductService;
+import com.blackHawk.migrate.repositories.MSS.*;
+import com.blackHawk.migrate.repositories.Mongo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +23,9 @@ public class DBControl {
 
     @Autowired
     private MgCustomerRepository mongoCustomerRepository;
+
+    @Autowired
+    private MgAutoRepository mgTesteRepository;
 
     @Autowired
     private MgOrderlineRepository mongoOrderlineRepository;
@@ -59,6 +56,8 @@ public class DBControl {
     {
         mongoCustomerRepository.save(c);
     }
+
+    public void SaveMongo(AutoClass c) { mgTesteRepository.save(c);}
 
     public void SaveMongo(com.blackHawk.migrate.models.Mongo.Orderline orderline)
     {

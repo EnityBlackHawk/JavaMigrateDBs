@@ -7,9 +7,8 @@ import java.util.Date;
 
 public interface CustomerInterface {
 
-
     @AddAnnotation(Id.class)
-    public void setId(int id);
+    public void setId(String id);
 
     public void setName(String name);
 

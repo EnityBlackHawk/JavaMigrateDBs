@@ -11,7 +11,7 @@ import java.util.List;
 import org.springframework.data.annotation.Reference;
 
 @Document
-public class Order implements com.blackHawk.migrate.BaseClasses.OrderInterface {
+public class Order {
 
     @Id
     private String id;
@@ -36,37 +36,37 @@ public class Order implements com.blackHawk.migrate.BaseClasses.OrderInterface {
         this.orderlines = orderlines;
     }
 
-    @Override
+
     public String getId() {
         return id;
     }
 
-    @Override
+
     public void setId(String id) {
         this.id = id;
     }
 
-    @Override
+
     public Date getOrderdate() {
         return orderdate;
     }
 
-    @Override
+
     public void setOrderdate(Date orderdate) {
         this.orderdate = orderdate;
     }
 
-    @Override
+
     public float getTotal() {
         return total;
     }
 
-    @Override
+
     public void setTotal(float total) {
         this.total = total;
     }
 
-    @Override
+
     public Customer getCustomer() {
         return customer;
     }
@@ -75,23 +75,22 @@ public class Order implements com.blackHawk.migrate.BaseClasses.OrderInterface {
 //        this.customer = new Customer(String.format("%d", customer.getId()), customer.getName(), customer.getBirth(), customer.getBudget());
 //    }
 
-    @Override
+
     public void setCustomer(Customer customer)
     {
         this.customer = customer;
     }
 
-    @Override
+
     public List<Orderline> getOrderlines() {
         return orderlines;
     }
 
-    @Override
+
     public void setOrderlines(List<Orderline> orderlines) {
         this.orderlines = orderlines;
     }
 
-    @Override
     public void addOrderlines(Orderline o)
     {
         orderlines.add(o);

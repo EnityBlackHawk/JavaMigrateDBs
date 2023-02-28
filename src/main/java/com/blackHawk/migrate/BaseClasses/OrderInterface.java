@@ -1,31 +1,27 @@
 package com.blackHawk.migrate.BaseClasses;
 
+import com.blackHawk.migrate.Annotations.AddAnnotation;
+import com.blackHawk.migrate.Annotations.ConditionalAnnotation;
 import com.blackHawk.migrate.models.Mongo.Customer;
 import com.blackHawk.migrate.models.Mongo.Orderline;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
+import javax.persistence.Id;
 import java.util.Date;
 import java.util.List;
 
 public interface OrderInterface {
-    String getId();
 
+    @AddAnnotation(Id.class)
     void setId(String id);
-
-    Date getOrderdate();
 
     void setOrderdate(Date orderdate);
 
-    float getTotal();
-
     void setTotal(float total);
 
-    Customer getCustomer();
-
+    @AddAnnotation(DocumentReference.class)
     void setCustomer(Customer customer);
 
-    List<Orderline> getOrderlines();
-
+    @ConditionalAnnotation(value = DocumentReference.class, tag = "refOrderline", def = false)
     void setOrderlines(List<Orderline> orderlines);
-
-    void addOrderlines(Orderline o);
 }
