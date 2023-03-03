@@ -1,6 +1,7 @@
 package com.blackHawk.migrate;
 
-import com.blackHawk.migrate.BaseClasses.AutoClass;
+import com.blackHawk.migrate.BaseClasses.AutoCustomerClass;
+import com.blackHawk.migrate.BaseClasses.AutoOrderClass;
 import com.blackHawk.migrate.models.MSS.Customer;
 import com.blackHawk.migrate.models.MSS.Order;
 import com.blackHawk.migrate.models.MSS.Orderline;
@@ -26,6 +27,9 @@ public class DBControl {
 
     @Autowired
     private MgAutoRepository mgTesteRepository;
+
+    @Autowired
+    private  MgAutoCustomerRepository mgAutoCustomerRepository;
 
     @Autowired
     private MgOrderlineRepository mongoOrderlineRepository;
@@ -57,7 +61,9 @@ public class DBControl {
         mongoCustomerRepository.save(c);
     }
 
-    public void SaveMongo(AutoClass c) { mgTesteRepository.save(c);}
+    public void SaveMongo(AutoOrderClass c) { mgTesteRepository.save(c);}
+
+    public void SaveMongo(AutoCustomerClass autoCustomerClass) { mgAutoCustomerRepository.save(autoCustomerClass);}
 
     public void SaveMongo(com.blackHawk.migrate.models.Mongo.Orderline orderline)
     {

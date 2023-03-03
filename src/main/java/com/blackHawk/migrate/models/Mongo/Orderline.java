@@ -1,14 +1,9 @@
 package com.blackHawk.migrate.models.Mongo;
 
-import com.blackHawk.migrate.BaseClasses.AutoClass;
-import com.blackHawk.migrate.models.Mongo.Order;
-import com.blackHawk.migrate.models.Mongo.Product;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
+import com.blackHawk.migrate.BaseClasses.AutoOrderClass;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import java.util.Date;
 
 
@@ -24,7 +19,7 @@ public class Orderline {
     private float price;
 
     @DocumentReference
-    private AutoClass order;
+    private AutoOrderClass order;
 
     @DocumentReference
     private Product product;
@@ -32,7 +27,7 @@ public class Orderline {
     public Orderline() {
     }
 
-    public Orderline(String id, Date orderlinedate, float quantity, float price, AutoClass order, Product product) {
+    public Orderline(String id, Date orderlinedate, float quantity, float price, AutoOrderClass order, Product product) {
         this.id = id;
         this.orderlinedate = orderlinedate;
         this.quantity = quantity;
@@ -73,11 +68,11 @@ public class Orderline {
         this.price = price;
     }
 
-    public AutoClass getOrder() {
+    public AutoOrderClass getOrder() {
         return order;
     }
 
-    public void setOrder(AutoClass order) {
+    public void setOrder(AutoOrderClass order) {
         this.order = order;
     }
 

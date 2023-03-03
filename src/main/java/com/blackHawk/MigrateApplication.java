@@ -2,7 +2,9 @@ package com.blackHawk;
 
 
 import com.blackHawk.migrate.AutoGen;
-import com.blackHawk.migrate.BaseClasses.AutoClass;
+import com.blackHawk.migrate.BaseClasses.AutoCustomerClass;
+import com.blackHawk.migrate.BaseClasses.AutoOrderClass;
+import com.blackHawk.migrate.BaseClasses.CustomerInterface;
 import com.blackHawk.migrate.BaseClasses.OrderInterface;
 import com.blackHawk.migrate.DBControl;
 import com.blackHawk.migrate.models.MSS.Customer;
@@ -28,7 +30,7 @@ public class MigrateApplication {
 	public static final boolean MIGRATE = true;
 	public static final boolean REFERENCED = true;
 	public static final boolean TESTE1 = false;
-	public static final boolean TESTE2 = true;
+	public static final boolean TESTE2 = false;
 
 
 	public static void main(String[] args) throws Throwable {
@@ -37,10 +39,15 @@ public class MigrateApplication {
 
 		hm.put("refOrderline", REFERENCED);
 
-		var pair = AutoGen.Generate("AutoOrder", "com.blackHawk.migrate.auto", OrderInterface.class, hm);
+		var pair = AutoGen.Generate("AutoOrder", "com.blackHawk.migrate.auto", OrderInterface.class, AutoOrderClass.class, hm);
 
-		Class<?> generadedClass = pair.getFirst();
-		Object generadedObject = pair.getSecond();
+		Class<?> autoOrderClass = pair.getFirst();
+		//Object _generadedObject = pair.getSecond();
+
+		var pair2 = AutoGen.Generate("AutoCustomer", "com.blackHawk.migrate.auto", CustomerInterface.class, AutoCustomerClass.class, hm);
+
+		Class<?> autoCustomerClass = pair2.getFirst();
+		//Object generadedObject = pair2.getSecond();
 
 
 		var context = SpringApplication.run(MigrateApplication.class, args);
@@ -60,7 +67,7 @@ public class MigrateApplication {
 
 
 			List<com.blackHawk.migrate.models.Mongo.Product> lpM  	= new ArrayList<>();
-			List<com.blackHawk.migrate.models.Mongo.Customer> lcM 	= new ArrayList<>();
+			List<Object> lcM 	= new ArrayList<>();
 			List<Object> loM 	= new ArrayList<>();
 			List<com.blackHawk.migrate.models.Mongo.Orderline> lolM	= new ArrayList<>();
 
@@ -75,14 +82,14 @@ public class MigrateApplication {
 
 			for(int i = 0; i < lc.size(); i++)
 			{
-				lcM.add(modelMapper.map(lc.get(i), com.blackHawk.migrate.models.Mongo.Customer.class));
-				db.SaveMongo(lcM.get(i));
+				lcM.add(modelMapper.map(lc.get(i), autoCustomerClass));
+				db.SaveMongo((AutoCustomerClass) lcM.get(i));
 			}
 
 			for(int i = 0; i < lo.size(); i++)
 			{
-				loM.add(modelMapper.map(lo.get(i), generadedClass));
-				db.SaveMongo((AutoClass) loM.get(i));
+				loM.add(modelMapper.map(lo.get(i), autoOrderClass));
+				db.SaveMongo((AutoOrderClass) loM.get(i));
 			}
 
 			if(REFERENCED)
@@ -100,38 +107,39 @@ public class MigrateApplication {
 
 
 
-			var met = generadedObject.getClass().getDeclaredMethods();
-
-			System.out.print("\nANNOTATION: \n");
-			System.out.print("\t");
-			System.out.print(generadedClass.getAnnotations()[0].toString() + "\n");
-
-
-			System.out.print("\nMETHODS: \n");
-			for(var o : met)
-			{
-				System.out.print("\t");
-				System.out.print(o.getReturnType().toString() + " " + o.getName() + "(");
-				for(var p : o.getParameterTypes())
-				{
-					System.out.print(p.getName() + ", ");
-				}
-				System.out.print(") \n");
-			}
-			System.out.print("\nFIELDS: \n");
-
-			var fields = generadedObject.getClass().getDeclaredFields();
-			for(var f : fields)
-			{
-				System.out.print("\t");
-				System.out.print(f.getType() + " " + f.getName() + "-> ");
-				for(var a : f.getDeclaredAnnotations())
-					System.out.print(a + ", ");
-				System.out.print("\n");
-			}
-
-			System.out.print("\nTESTS: \n");
-
+//			var met = generadedObject.getClass().getDeclaredMethods();
+//
+//			System.out.print("\nClass: " + generadedClass.getName() + "\n");
+//
+//			System.out.print("\nANNOTATION: \n");
+//			System.out.print("\t");
+//			System.out.print(generadedClass.getAnnotations()[0].toString() + "\n");
+//
+//
+//			System.out.print("\nMETHODS: \n");
+//			for(var o : met)
+//			{
+//				System.out.print("\t");
+//				System.out.print(o.getReturnType().toString() + " " + o.getName() + "(");
+//				for(var p : o.getParameterTypes())
+//				{
+//					System.out.print(p.getName() + ", ");
+//				}
+//				System.out.print(") \n");
+//			}
+//			System.out.print("\nFIELDS: \n");
+//
+//			var fields = generadedObject.getClass().getDeclaredFields();
+//			for(var f : fields)
+//			{
+//				System.out.print("\t");
+//				System.out.print(f.getType() + " " + f.getName() + "-> ");
+//				for(var a : f.getDeclaredAnnotations())
+//					System.out.print(a + ", ");
+//				System.out.print("\n");
+//			}
+//
+//			System.out.print("\nTESTS: \n");
 
 		}
                        
