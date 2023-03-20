@@ -2,10 +2,7 @@ package com.blackHawk;
 
 
 import com.blackHawk.migrate.AutoGen;
-import com.blackHawk.migrate.BaseClasses.AutoCustomerClass;
-import com.blackHawk.migrate.BaseClasses.AutoOrderClass;
-import com.blackHawk.migrate.BaseClasses.CustomerInterface;
-import com.blackHawk.migrate.BaseClasses.OrderInterface;
+import com.blackHawk.migrate.BaseClasses.*;
 import com.blackHawk.migrate.DBControl;
 import com.blackHawk.migrate.models.MSS.Customer;
 import com.blackHawk.migrate.models.MSS.Order;
@@ -19,27 +16,38 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
+import javax.lang.model.element.PackageElement;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @SpringBootApplication
 @EnableMongoRepositories(basePackageClasses = {ProductService.class, MgProductRespository.class})
 public class MigrateApplication {
 
 	public static final boolean MIGRATE = true;
-	public static final boolean REFERENCED = true;
-	public static final boolean TESTE1 = false;
+	public static final boolean REFERENCED = false;
+	public static final boolean TESTE1 = true;
 	public static final boolean TESTE2 = false;
 
 
 	public static void main(String[] args) throws Throwable {
 
-		HashMap<String, Boolean> hm = new HashMap<>();
+		Runtime rt = Runtime.getRuntime();
+		Process p = rt.exec("E:\\cpp\\JavaBuilder\\x64\\Debug\\JavaBuilder.exe");
+		int val = p.waitFor();
 
+
+		HashMap<String, Boolean> hm = new HashMap<>();
+		/*
 		hm.put("refOrderline", REFERENCED);
 
-		var pair = AutoGen.Generate("AutoOrder", "com.blackHawk.migrate.auto", OrderInterface.class, AutoOrderClass.class, hm);
+		Class<?> externalAutoOrder = Class.forName("com.blackHawk.migrate.External.AutoOrderEx");
+
+		var pair = AutoGen.Generate("AutoOrder", "com.blackHawk.migrate.auto", OrderInterface.class, externalAutoOrder, hm);
 
 		Class<?> autoOrderClass = pair.getFirst();
 		//Object _generadedObject = pair.getSecond();
@@ -48,6 +56,12 @@ public class MigrateApplication {
 
 		Class<?> autoCustomerClass = pair2.getFirst();
 		//Object generadedObject = pair2.getSecond();
+		*/
+
+		Class<?> externalCustomerClass = Class.forName("com.blackHawk.migrate.External.AutoCustomerEx");
+
+		var pair = AutoGen.Generate("AutoCustomer", "com.blackHawk.migrate.auto", CustomerInterface.class, externalCustomerClass, hm);
+		Class<?> autoCustomerClass = pair.getFirst();
 
 
 		var context = SpringApplication.run(MigrateApplication.class, args);
@@ -74,38 +88,41 @@ public class MigrateApplication {
 
 			ModelMapper modelMapper = new ModelMapper();
 
-			for(int i = 0; i < lp.size(); i++)
-			{
-				lpM.add(modelMapper.map(lp.get(i), com.blackHawk.migrate.models.Mongo.Product.class));
-				db.SaveMongo(lpM.get(i));
-			}
-
 			for(int i = 0; i < lc.size(); i++)
 			{
 				lcM.add(modelMapper.map(lc.get(i), autoCustomerClass));
-				db.SaveMongo((AutoCustomerClass) lcM.get(i));
+				System.out.print(lcM.get(i).getClass().getSuperclass().getName());
 			}
 
-			for(int i = 0; i < lo.size(); i++)
-			{
-				loM.add(modelMapper.map(lo.get(i), autoOrderClass));
-				db.SaveMongo((AutoOrderClass) loM.get(i));
-			}
-
-			if(REFERENCED)
-				for(int i = 0; i < lol.size(); i++)
-				{
-					lolM.add(modelMapper.map(lol.get(i), com.blackHawk.migrate.models.Mongo.Orderline.class));
-					db.SaveMongo(lolM.get(i));
-				}
+//			for(int i = 0; i < lp.size(); i++)
+//			{
+//				lpM.add(modelMapper.map(lp.get(i), com.blackHawk.migrate.models.Mongo.Product.class));
+//				db.SaveMongo(lpM.get(i));
+//			}
+//
+//			for(int i = 0; i < lc.size(); i++)
+//			{
+//				lcM.add(modelMapper.map(lc.get(i), autoCustomerClass));
+//				db.SaveMongo((AutoCustomerClass) lcM.get(i));
+//			}
+//
+//			for(int i = 0; i < lo.size(); i++)
+//			{
+//				loM.add(modelMapper.map(lo.get(i), autoOrderClass));
+//				db.SaveMongo(externalAutoOrder.cast(loM.get(i)));
+//			}
+//
+//			if(REFERENCED)
+//				for(int i = 0; i < lol.size(); i++)
+//				{
+//					lolM.add(modelMapper.map(lol.get(i), com.blackHawk.migrate.models.Mongo.Orderline.class));
+//					db.SaveMongo(lolM.get(i));
+//				}
 		}
 		else if(TESTE1)
 		{
-
 		}
 		else if(TESTE2){
-
-
 
 //			var met = generadedObject.getClass().getDeclaredMethods();
 //

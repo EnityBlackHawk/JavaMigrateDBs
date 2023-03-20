@@ -1,5 +1,8 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Unnamed" type="Application" factoryName="Application" nameIsGenerated="true">
+    <envs>
+      <env name="Teste" value="Luan" />
+    </envs>
     <option name="MAIN_CLASS_NAME" value="com.blackHawk.MigrateApplication" />
     <module name="JavaMigrate" />
     <method v="2">

@@ -63,7 +63,10 @@ public class DBControl {
 
     public void SaveMongo(AutoOrderClass c) { mgTesteRepository.save(c);}
 
-    public void SaveMongo(AutoCustomerClass autoCustomerClass) { mgAutoCustomerRepository.save(autoCustomerClass);}
+    public void SaveMongo(Object autoCustomerClass)
+    {
+
+    }
 
     public void SaveMongo(com.blackHawk.migrate.models.Mongo.Orderline orderline)
     {
